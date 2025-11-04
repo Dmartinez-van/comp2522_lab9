@@ -40,6 +40,7 @@ public class Score
 
     /**
      * Saves current score to high score file
+     * @throws IOException if file saving has an error
      */
     public void saveScore() throws IOException
     {
