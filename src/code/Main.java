@@ -17,6 +17,6 @@ public class Main
         final Scanner scanner;
         scanner = new Scanner(System.in);
 
-
+        Game.start();
     }
 }
