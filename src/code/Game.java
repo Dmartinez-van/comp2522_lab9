@@ -65,6 +65,7 @@ class Game
         scanner             = new Scanner(System.in);
 
         System.out.println("Secret word length: " + randomCountryLength);
+        System.out.println("Secret Word: " + randomCountry); // For testing purposes
         System.out.println("Current best: —");
         while (true)
         {
@@ -75,10 +76,18 @@ class Game
             response = new StringBuilder();
 
             System.out.println("LUCKY VAULT — COUNTRY MODE. Type QUIT to exit.");
+            System.out.print("Your Guess: ");
             guess       = scanner.nextLine().trim().toLowerCase();
             guessLength = guess.length();
+            System.out.println();
 
             if (guess.equals("quit"))
+            {
+                System.out.println("Bye!");
+                break;
+            }
+
+            if (guess.equalsIgnoreCase(randomCountry))
             {
                 response.append("Correct in ")
                     .append(guessCount)
@@ -97,7 +106,7 @@ class Game
 
                     for (int i = 0; i < randomCountryLength; i++)
                     {
-                        if (guess.charAt(i) == randomCountry.charAt(i))
+                        if (guess.charAt(i) == randomCountry.toLowerCase().charAt(i))
                         {
                             correctLetters++;
                         }
