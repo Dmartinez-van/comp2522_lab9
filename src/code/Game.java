@@ -38,10 +38,12 @@ class Game
             {
                 Files.createDirectories(countriesPath.getParent());
             }
+
             if (Files.notExists(countriesPath))
             {
                 Files.createFile(countriesPath);
             }
+
             countries = Files.readAllLines(countriesPath);
         }
         catch (final IOException e)
@@ -49,7 +51,8 @@ class Game
             throw new RuntimeException(e);
         }
 
-        for (final String country : countries) {
+        for (final String country : countries)
+        {
             System.out.println(country);
         }
     }
