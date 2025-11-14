@@ -1,8 +1,8 @@
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Keeps track of a score.
@@ -15,9 +15,18 @@ public class Score
 {
     private int score;
 
-    Score()
+    /**
+     * Constructor for score
+     */
+    Score() throws IOException
     {
+        final Path scorePath;
+        scorePath = Paths.get("data", "highscore.txt");
 
+        if (Files.notExists(scorePath))
+        {
+            Files.createFile(scorePath);
+        }
     }
 
     /**
@@ -44,15 +53,13 @@ public class Score
      */
     public void saveScore() throws IOException
     {
-        final String highScorePath;
-        final Path path;
+        final Path scorePath;
+        final String s;
 
-        highScorePath = "../output/high-score.txt";
-        path = Paths.get(URI.create(highScorePath));
+        s = score + "";
+        scorePath = Paths.get("data", "highscore.txt");
 
-        if (Files.notExists(path))
-        {
-            Files.createFile(path);
-        }
+        //TODO Write score to file
+//        Files.write(scorePath, s, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 }

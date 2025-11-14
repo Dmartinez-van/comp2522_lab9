@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,11 +23,24 @@ import java.util.Scanner;
 class Game
 {
     private final List<String> countries;
+    private final Score        score;
 
-    public Game()
+    private boolean gameOn;
+    private int guessCount;
+
+    /**
+     * Game class constructor.
+     * Sets up object with path to country text file.
+     */
+    public Game() throws IOException
     {
+        final Score score;
         final Path countriesPath;
+
         countriesPath = Paths.get("src", "data", "countries.txt");
+
+        this.gameOn = true; // enables game loop
+        this.score = new Score();
 
         try
         {
@@ -41,7 +53,10 @@ class Game
             {
                 Files.createFile(countriesPath);
             }
+
             countries = Files.readAllLines(countriesPath);
+
+            checkCountryListEmpty(countriesPath);
         }
         catch (final IOException e)
         {
@@ -49,25 +64,94 @@ class Game
         }
     }
 
+    /**
+     * Validate that the countries list contains entries.
+     * Throws an unchecked exception so callers don't run the game with invalid data.
+     */
+    private void checkCountryListEmpty(final Path countriesPath)
+    {
+        if (countries.isEmpty())
+        {
+            throw new IllegalStateException("There are no countries in the source data file: " +
+                                            countriesPath.toString());
+        }
+    }
+
+    /**
+     * Gets a new random country.
+     *
+     * @return a Country name as String.
+     */
+    private String getRandomCountry()
+    {
+        final Random rand;
+
+        rand = new Random();
+
+        return countries.get(rand.nextInt(countries.size()));
+    }
+
+    /**
+     * Stops game loop.
+     */
+    private void turnOffGame()
+    {
+        gameOn = false;
+    }
+
+    /**
+     * Displays starting message before game loop.
+     *
+     * @param secretWord the word the user is trying to guess.
+     */
+    private void displayStartMessage(final String secretWord)
+    {
+        System.out.println("Secret word length: " + secretWord.length());
+        System.out.println("Secret Word: " + secretWord); // For testing purposes
+        System.out.println("Current best: —"); // TODO needs to read from highScore.txt if it exists.
+    }
+
+    private int checkCorrectLetterPositions(final String randomCountry,
+                                            final int randomCountryLength,
+                                            final String guess)
+    {
+        final int noMatches;
+        int correctLetters;
+
+        noMatches = 0;
+        correctLetters = noMatches;
+
+        for (int i = 0; i < randomCountryLength; i++)
+        {
+            if (guess.charAt(i) == randomCountry.toLowerCase().charAt(i))
+            {
+                correctLetters++;
+            }
+        }
+
+        return correctLetters;
+    }
+
+    /**
+     * Main game loop logic.
+     * Reads and stores the number of countries in data file.
+     * Picks a random number which is used to select a random country.
+     * Has scanner to read and use user input.
+     * Keeps track of a guess count
+     */
     public void start()
     {
-        final int countriesLength;
-        final Random rand;
         final String randomCountry;
         final int randomCountryLength;
         final Scanner scanner;
-        int guessCount = 1;
 
-        countriesLength     = countries.size();
-        rand                = new Random();
-        randomCountry       = countries.get(rand.nextInt(countriesLength));
+        scanner             = new Scanner(System.in); // defaults to UTF-8 charset
+        randomCountry       = getRandomCountry();
         randomCountryLength = randomCountry.length();
-        scanner             = new Scanner(System.in);
 
-        System.out.println("Secret word length: " + randomCountryLength);
-        System.out.println("Secret Word: " + randomCountry); // For testing purposes
-        System.out.println("Current best: —");
-        while (true)
+        displayStartMessage(randomCountry);
+
+        while (gameOn)
         {
             final String guess;
             final StringBuilder response;
@@ -81,51 +165,57 @@ class Game
             guessLength = guess.length();
             System.out.println();
 
-            if (guess.equals("quit"))
+            // Empty or Invalid guess
+            if (guess.isEmpty())
             {
-                System.out.println("Bye!");
-                break;
+                System.out.println("Empty Guess. Try again.");
             }
 
+            // Quit
+            if (guess.equalsIgnoreCase("quit"))
+            {
+                System.out.println("Bye!");
+                turnOffGame();
+            }
+
+            // Valid guess made
+            incrementGuessCount();
+
+            // Correct guess
             if (guess.equalsIgnoreCase(randomCountry))
             {
                 response.append("Correct in ")
-                    .append(guessCount)
-                    .append(" attempts! Word was: ")
-                    .append(randomCountry);
+                        .append(guessCount)
+                        .append(" attempts! Word was: ")
+                        .append(randomCountry);
 
-                System.out.println(response.toString());
-                break;
+                System.out.println(response);
+
+                // TODO Need to check if new best was achieved and display msg if it is.
+                turnOffGame();
             }
-            else
+            else // Incorrect guess
             {
+                // Correct guess length. Check and display any correct letter positions
                 if (guessLength == randomCountryLength)
                 {
                     int correctLetters;
-                    correctLetters = 0;
 
-                    for (int i = 0; i < randomCountryLength; i++)
-                    {
-                        if (guess.charAt(i) == randomCountry.toLowerCase().charAt(i))
-                        {
-                            correctLetters++;
-                        }
-                    }
+                    correctLetters = checkCorrectLetterPositions(randomCountry,randomCountryLength, guess);
 
                     response.append("Not it. ")
                         .append(correctLetters)
                         .append(" letter(s) correct (right position).");
-                    System.out.println(response.toString());
+                    System.out.println(response);
                 }
-                else
+                else // Incorrect guess length
                 {
-                    guessCount++;
-                    response.append("Wrong length (")
+                    response.append("Wrong length, try again. You guessed with (")
                         .append(guessLength)
-                        .append("). Need ")
+                        .append(") word length. Answer has ")
                         .append(randomCountryLength)
-                        .append(".");
-                    System.out.println(response.toString());
+                        .append(" length.");
+                    System.out.println(response);
                 }
             }
         }
