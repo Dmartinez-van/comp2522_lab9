@@ -41,8 +41,8 @@ class Game
         countriesPath = Paths.get("src", "data", "countries.txt");
 
         this.guessCount = DEFAULT_SCORE;
-        this.gameOn = true; // enables game loop
-        this.score = new HighScoreService();
+        this.gameOn     = true; // enables game loop
+        this.score      = new HighScoreService();
 
         try
         {
@@ -75,7 +75,7 @@ class Game
         if (countries.isEmpty())
         {
             throw new IllegalStateException("There are no countries in the source data file: " +
-                                            countriesPath.toString());
+                                                countriesPath.toString());
         }
     }
 
@@ -112,11 +112,20 @@ class Game
 
         startMessageBuilder = new StringBuilder();
         startMessageBuilder.append("LUCKY VAULT \u2014 COUNTRY MODE. Type QUIT to exit.\n")
-                           .append("Secret word length: ")
-                           .append(secretWord.length())
-                           .append("\nSecret Word: ")
-                           .append(secretWord) // For testing purposes
-                           .append("\nCurrent best: \u2014"); // TODO needs to read from highScore.txt if it exists.
+            .append("Secret word length: ")
+            .append(secretWord.length())
+            .append("\nSecret word: ")
+            .append(secretWord) // For testing purposes
+            .append("\nCurrent best: ");
+        if (score.getHighScore() == DEFAULT_SCORE)
+        {
+            startMessageBuilder.append("\u2014");
+        }
+        else
+        {
+            startMessageBuilder.append(score.getHighScore())
+                .append(" guesses");
+        }
         System.out.println(startMessageBuilder.toString());
     }
 
@@ -152,10 +161,9 @@ class Game
      */
     public void start()
     {
-        final String  randomCountry;
-        final int     randomCountryLength;
+        final String randomCountry;
+        final int randomCountryLength;
         final Scanner scanner;
-
         scanner             = new Scanner(System.in); // defaults to UTF-8 charset
         randomCountry       = getRandomCountry();
         randomCountryLength = randomCountry.length();
@@ -194,13 +202,13 @@ class Game
             if (guess.equalsIgnoreCase(randomCountry))
             {
                 response.append("Correct in ")
-                        .append(guessCount)
-                        .append(" attempts! Word was: ")
-                        .append(randomCountry);
+                    .append(guessCount)
+                    .append(" attempts! Word was: ")
+                    .append(randomCountry);
 
                 System.out.println(response);
 
-                // TODO Need to check if new best was achieved and display msg if it is.
+                score.setHighScore(guessCount);
                 turnOffGame();
             }
             else // Incorrect guess
@@ -210,7 +218,7 @@ class Game
                 {
                     int correctLetters;
 
-                    correctLetters = checkCorrectLetterPositions(randomCountry,randomCountryLength, guess);
+                    correctLetters = checkCorrectLetterPositions(randomCountry, randomCountryLength, guess);
 
                     response.append("Not it. ")
                         .append(correctLetters)
