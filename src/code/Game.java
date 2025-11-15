@@ -22,11 +22,13 @@ import java.util.Scanner;
  */
 class Game
 {
-    private final List<String> countries;
-    private final Score        score;
+    public static final int DEFAULT_SCORE = 0;
 
-    private boolean gameOn;
+    private final List<String> countries;
+    private final HighScoreService score;
+
     private int guessCount;
+    private boolean gameOn;
 
     /**
      * Game class constructor.
@@ -34,13 +36,13 @@ class Game
      */
     public Game() throws IOException
     {
-        final Score score;
         final Path countriesPath;
 
         countriesPath = Paths.get("src", "data", "countries.txt");
 
+        this.guessCount = DEFAULT_SCORE;
         this.gameOn = true; // enables game loop
-        this.score = new Score();
+        this.score = new HighScoreService();
 
         try
         {
@@ -106,20 +108,29 @@ class Game
      */
     private void displayStartMessage(final String secretWord)
     {
-        System.out.println("Secret word length: " + secretWord.length());
-        System.out.println("Secret Word: " + secretWord); // For testing purposes
-        System.out.println("Current best: —"); // TODO needs to read from highScore.txt if it exists.
+        final StringBuilder startMessageBuilder;
+
+        startMessageBuilder = new StringBuilder();
+        startMessageBuilder.append("LUCKY VAULT \u2014 COUNTRY MODE. Type QUIT to exit.\n")
+                           .append("Secret word length: ")
+                           .append(secretWord.length())
+                           .append("\nSecret Word: ")
+                           .append(secretWord) // For testing purposes
+                           .append("\nCurrent best: \u2014"); // TODO needs to read from highScore.txt if it exists.
+        System.out.println(startMessageBuilder.toString());
     }
 
+    /*
+     * Helper function that checks how many letters match in the correct position.
+     * Only checks the characters up to the correct length.
+     */
     private int checkCorrectLetterPositions(final String randomCountry,
                                             final int randomCountryLength,
                                             final String guess)
     {
-        final int noMatches;
         int correctLetters;
 
-        noMatches = 0;
-        correctLetters = noMatches;
+        correctLetters = DEFAULT_SCORE;
 
         for (int i = 0; i < randomCountryLength; i++)
         {
@@ -141,15 +152,13 @@ class Game
      */
     public void start()
     {
-        final String randomCountry;
-        final int randomCountryLength;
+        final String  randomCountry;
+        final int     randomCountryLength;
         final Scanner scanner;
 
         scanner             = new Scanner(System.in); // defaults to UTF-8 charset
         randomCountry       = getRandomCountry();
         randomCountryLength = randomCountry.length();
-
-        displayStartMessage(randomCountry);
 
         while (gameOn)
         {
@@ -159,7 +168,7 @@ class Game
 
             response = new StringBuilder();
 
-            System.out.println("LUCKY VAULT — COUNTRY MODE. Type QUIT to exit.");
+            displayStartMessage(randomCountry);
             System.out.print("Your Guess: ");
             guess       = scanner.nextLine().trim().toLowerCase();
             guessLength = guess.length();
@@ -172,14 +181,14 @@ class Game
             }
 
             // Quit
-            if (guess.equalsIgnoreCase("quit"))
+            if (guess.equals("quit"))
             {
                 System.out.println("Bye!");
                 turnOffGame();
             }
 
             // Valid guess made
-            incrementGuessCount();
+            guessCount++;
 
             // Correct guess
             if (guess.equalsIgnoreCase(randomCountry))
@@ -210,11 +219,11 @@ class Game
                 }
                 else // Incorrect guess length
                 {
-                    response.append("Wrong length, try again. You guessed with (")
+                    response.append("Wrong length (")
                         .append(guessLength)
-                        .append(") word length. Answer has ")
+                        .append("). Need ")
                         .append(randomCountryLength)
-                        .append(" length.");
+                        .append(".");
                     System.out.println(response);
                 }
             }
