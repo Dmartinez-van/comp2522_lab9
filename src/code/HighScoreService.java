@@ -16,6 +16,7 @@ public class HighScoreService
 {
     public static final String COUNTRY_MODE_PREFIX = "COUNTRY=";
     public static final Path SCORE_FILE = Paths.get("src", "data", "highscore.txt");
+    private static final int DEFAULT_SCORE = 0;
 
     private int highScore;
 
@@ -51,7 +52,7 @@ public class HighScoreService
 
         if (!line.startsWith(COUNTRY_MODE_PREFIX))
         {
-            return 0;
+            return DEFAULT_SCORE;
         }
 
         highScoreString = line.substring(COUNTRY_MODE_PREFIX.length()).trim();
@@ -87,7 +88,8 @@ public class HighScoreService
                 Files.createDirectories(SCORE_FILE.getParent());
             }
 
-            final String line = COUNTRY_MODE_PREFIX + highScore;
+            final String line;
+            line = COUNTRY_MODE_PREFIX + highScore;
             Files.writeString(SCORE_FILE, line, StandardOpenOption.CREATE);
         }
         catch (final IOException e)
@@ -96,22 +98,5 @@ public class HighScoreService
         }
 
         this.highScore = highScore;
-    }
-
-    /**
-     * Saves current score to high score file
-     *
-     * @throws IOException if file saving has an error
-     */
-    public void saveScore(int score) throws IOException
-    {
-        final Path scorePath;
-        final String s;
-
-        s         = score + "";
-        scorePath = Paths.get("data", "highscore.txt");
-
-        //TODO Write score to file
-//        Files.write(scorePath, s, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 }
