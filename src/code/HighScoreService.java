@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
  * Can save value to text file.
  *
  * @author David Martinez
+ * @author Daniel Do
  * @version 1.0
  */
 public class HighScoreService
