@@ -23,7 +23,7 @@ public class HighScoreService
     /**
      * Constructor for score
      */
-    HighScoreService() throws IOException
+    HighScoreService()
     {
         try
         {
@@ -38,13 +38,13 @@ public class HighScoreService
             }
 
             final String line = Files.readString(SCORE_FILE).trim();
-            if (line == null || line.isEmpty())
+            if (line.isEmpty())
             {
                 highScore = DEFAULT_SCORE;
             }
             else
             {
-                highScore = fetchHighScore(line);
+                highScore = parseHighScoreString(line);
             }
         }
         catch (final IOException e)
@@ -53,7 +53,7 @@ public class HighScoreService
         }
     }
 
-    private int fetchHighScore(final String line)
+    private int parseHighScoreString(final String line)
     {
         final String highScoreString;
 
@@ -77,11 +77,11 @@ public class HighScoreService
     }
 
     /**
-     * Setter for score
+     * Setter for score.
      *
      * @param highScore the new score
      */
-    public void setHighScore(final int highScore)
+    public void writeHighScore(final int highScore)
     {
         try
         {

@@ -26,9 +26,10 @@ class Game
 
     private final List<String> countries;
     private final HighScoreService score;
+    private final LoggerService logger;
 
-    private String  gameMode;
-    private int     guessCount;
+    private String gameMode;
+    private int guessCount;
     private boolean gameOn;
 
     /**
@@ -41,10 +42,11 @@ class Game
 
         countriesPath = Paths.get("src", "data", "countries.txt");
 
-        this.guessCount = DEFAULT_SCORE;
-        this.gameOn     = true; // enables game loop
-        this.score      = new HighScoreService();
         this.gameMode   = "COUNTRY";
+        this.guessCount = DEFAULT_SCORE;
+        this.gameOn     = true;
+        this.score      = new HighScoreService();
+        this.logger     = new LoggerService();
 
         try
         {
@@ -203,16 +205,21 @@ class Game
             // Correct guess
             if (guess.equalsIgnoreCase(randomCountry))
             {
-                response.append("Correct in ")
-                    .append(guessCount)
-                    .append(" attempts! Word was: ")
-                    .append(randomCountry);
+                response.append("correct in ")
+                        .append(guessCount);
+
+                logger.addGuessLog(guess, response.toString());
+                logger.writeGuessLog();
+
+                response.append(" attempts! Word was: ")
+                        .append(randomCountry);
 
                 System.out.println(response);
 
-                if (score.getHighScore() > guessCount || score.getHighScore() == DEFAULT_SCORE) {
+                if (score.getHighScore() > guessCount || score.getHighScore() == DEFAULT_SCORE)
+                {
                     System.out.println("NEW BEST for " + gameMode + " mode!");
-                    score.setHighScore(guessCount);
+                    score.writeHighScore(guessCount);
                 }
                 turnOffGame();
             }
@@ -225,6 +232,8 @@ class Game
 
                     correctLetters = checkCorrectLetterPositions(randomCountry, randomCountryLength, guess);
 
+                    logger.addGuessLog(guess, "matches=" + correctLetters);
+
                     response.append("Not it. ")
                         .append(correctLetters)
                         .append(" letter(s) correct (right position).");
@@ -232,6 +241,7 @@ class Game
                 }
                 else // Incorrect guess length
                 {
+                    logger.addGuessLog(guess, "wrong_length");
                     response.append("Wrong length (")
                         .append(guessLength)
                         .append("). Need ")
