@@ -27,7 +27,8 @@ class Game
     private final List<String> countries;
     private final HighScoreService score;
 
-    private int guessCount;
+    private String  gameMode;
+    private int     guessCount;
     private boolean gameOn;
 
     /**
@@ -43,6 +44,7 @@ class Game
         this.guessCount = DEFAULT_SCORE;
         this.gameOn     = true; // enables game loop
         this.score      = new HighScoreService();
+        this.gameMode   = "COUNTRY";
 
         try
         {
@@ -168,6 +170,8 @@ class Game
         randomCountry       = getRandomCountry();
         randomCountryLength = randomCountry.length();
 
+        displayStartMessage(randomCountry);
+
         while (gameOn)
         {
             final String guess;
@@ -175,8 +179,6 @@ class Game
             final int guessLength;
 
             response = new StringBuilder();
-
-            displayStartMessage(randomCountry);
             System.out.print("Your Guess: ");
             guess       = scanner.nextLine().trim().toLowerCase();
             guessLength = guess.length();
@@ -208,7 +210,10 @@ class Game
 
                 System.out.println(response);
 
-                score.setHighScore(guessCount);
+                if (score.getHighScore() > guessCount || score.getHighScore() == DEFAULT_SCORE) {
+                    System.out.println("NEW BEST for " + gameMode + " mode!");
+                    score.setHighScore(guessCount);
+                }
                 turnOffGame();
             }
             else // Incorrect guess
