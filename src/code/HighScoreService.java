@@ -38,7 +38,14 @@ public class HighScoreService
             }
 
             final String line = Files.readString(SCORE_FILE).trim();
-            highScore = fetchHighScore(line);
+            if (line == null || line.isEmpty())
+            {
+                highScore = DEFAULT_SCORE;
+            }
+            else
+            {
+                highScore = fetchHighScore(line);
+            }
         }
         catch (final IOException e)
         {
@@ -76,21 +83,14 @@ public class HighScoreService
      */
     public void setHighScore(final int highScore)
     {
-        if (this.highScore < highScore)
-        {
-            return;
-        }
-
         try
         {
-            if (Files.notExists(SCORE_FILE.getParent()))
-            {
-                Files.createDirectories(SCORE_FILE.getParent());
-            }
-
             final String line;
             line = COUNTRY_MODE_PREFIX + highScore;
-            Files.writeString(SCORE_FILE, line, StandardOpenOption.CREATE);
+            Files.writeString(SCORE_FILE,
+                              line,
+                              StandardOpenOption.CREATE,
+                              StandardOpenOption.TRUNCATE_EXISTING);
         }
         catch (final IOException e)
         {
