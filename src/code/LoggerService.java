@@ -18,8 +18,8 @@ import java.util.List;
  */
 public class LoggerService
 {
-    public static final Path LOG_DIRECTORY = Paths.get("src", "data", "logs");
-    private static final DateTimeFormatter TIME_FORMATTER_MILLI = DateTimeFormatter.ofPattern("HH:mm:ss:SS");
+    public static final Path               LOG_DIRECTORY         = Paths.get("src", "data", "logs");
+    private static final DateTimeFormatter TIME_FORMATTER_MILLI  = DateTimeFormatter.ofPattern("HH:mm:ss:SS");
     private static final DateTimeFormatter TIME_FORMATTER_SECOND = DateTimeFormatter.ofPattern("HH-mm-ss");
 
     final List<String> guessLogLines;
