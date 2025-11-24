@@ -22,26 +22,23 @@ import java.util.Scanner;
  */
 class Game
 {
-    public static final int DEFAULT_SCORE = 0;
+    public static final int  DEFAULT_SCORE     = 0;
+    public static       Path COUNTRY_FILE_PATH = Paths.get("src", "data", "countries.txt");
 
-    private final List<String> countries;
+    private final List<String>     countryList;
     private final HighScoreService score;
-    private final LoggerService logger;
+    private final LoggerService    logger;
 
-    private String gameMode;
-    private int guessCount;
+    private String  gameMode;
+    private int     guessCount;
     private boolean gameOn;
 
     /**
      * Game class constructor.
      * Sets up object with path to country text file.
      */
-    public Game() throws IOException
+    public Game()
     {
-        final Path countriesPath;
-
-        countriesPath = Paths.get("src", "data", "countries.txt");
-
         this.gameMode   = "COUNTRY";
         this.guessCount = DEFAULT_SCORE;
         this.gameOn     = true;
@@ -50,19 +47,19 @@ class Game
 
         try
         {
-            if (Files.notExists(countriesPath.getParent()))
+            if (Files.notExists(COUNTRY_FILE_PATH.getParent()))
             {
-                Files.createDirectories(countriesPath.getParent());
+                Files.createDirectories(COUNTRY_FILE_PATH.getParent());
             }
 
-            if (Files.notExists(countriesPath))
+            if (Files.notExists(COUNTRY_FILE_PATH))
             {
-                Files.createFile(countriesPath);
+                Files.createFile(COUNTRY_FILE_PATH);
             }
 
-            countries = Files.readAllLines(countriesPath);
+            countryList = Files.readAllLines(COUNTRY_FILE_PATH);
 
-            checkCountryListEmpty(countriesPath);
+            checkCountryListEmpty(COUNTRY_FILE_PATH);
         }
         catch (final IOException e)
         {
@@ -76,10 +73,10 @@ class Game
      */
     private void checkCountryListEmpty(final Path countriesPath)
     {
-        if (countries.isEmpty())
+        if (countryList.isEmpty())
         {
             throw new IllegalStateException("There are no countries in the source data file: " +
-                                                countriesPath.toString());
+                                            countriesPath.toString());
         }
     }
 
@@ -90,11 +87,13 @@ class Game
      */
     private String getRandomCountry()
     {
-        final Random rand;
+        final Random random;
+        final String randomCountry;
 
-        rand = new Random();
+        random = new Random();
+        randomCountry = countryList.get(random.nextInt(countryList.size()));
 
-        return countries.get(rand.nextInt(countries.size()));
+        return randomCountry;
     }
 
     /**
@@ -116,11 +115,11 @@ class Game
 
         startMessageBuilder = new StringBuilder();
         startMessageBuilder.append("LUCKY VAULT \u2014 COUNTRY MODE. Type QUIT to exit.\n")
-            .append("Secret word length: ")
-            .append(secretWord.length())
-            .append("\nSecret word: ")
-            .append(secretWord) // For testing purposes
-            .append("\nCurrent best: ");
+                           .append("Secret word length: ")
+                           .append(secretWord.length())
+                           .append("\nSecret word: ")
+                           .append(secretWord + " (For testing purposes)") // For testing purposes
+                           .append("\nCurrent best: ");
         if (score.getHighScore() == DEFAULT_SCORE)
         {
             startMessageBuilder.append("\u2014");
@@ -128,7 +127,7 @@ class Game
         else
         {
             startMessageBuilder.append(score.getHighScore())
-                .append(" guesses");
+                               .append(" guesses");
         }
         System.out.println(startMessageBuilder.toString());
     }
@@ -203,13 +202,13 @@ class Game
                 if (guess.equalsIgnoreCase(randomCountry))
                 {
                     response.append("correct in ")
-                        .append(guessCount);
+                            .append(guessCount);
 
                     logger.addGuessLog(guess, response.toString());
                     logger.writeGuessLog();
 
                     response.append(" attempts! Word was: ")
-                        .append(randomCountry);
+                            .append(randomCountry);
 
                     System.out.println(response);
 
@@ -232,18 +231,18 @@ class Game
                         logger.addGuessLog(guess, "matches=" + correctLetters);
 
                         response.append("Not it. ")
-                            .append(correctLetters)
-                            .append(" letter(s) correct (right position).");
+                                .append(correctLetters)
+                                .append(" letter(s) correct (right position).");
                         System.out.println(response);
                     }
                     else // Incorrect guess length
                     {
                         logger.addGuessLog(guess, "wrong_length");
                         response.append("Wrong length (")
-                            .append(guessLength)
-                            .append("). Need ")
-                            .append(randomCountryLength)
-                            .append(".");
+                                .append(guessLength)
+                                .append("). Need ")
+                                .append(randomCountryLength)
+                                .append(".");
                         System.out.println(response);
                     }
                 }
