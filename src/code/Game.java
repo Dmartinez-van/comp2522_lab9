@@ -56,8 +56,6 @@ class Game
      */
     private List<String> loadCountries()
     {
-        final List<String> countryList;
-
         try
         {
             if (Files.notExists(COUNTRY_FILE_PATH.getParent()))
@@ -70,27 +68,23 @@ class Game
                 Files.createFile(COUNTRY_FILE_PATH);
             }
 
+            final List<String> countryList;
+
             countryList = Files.readAllLines(COUNTRY_FILE_PATH);
-            checkCountryListEmpty(COUNTRY_FILE_PATH);
+            countryList.forEach(System.out::println);
+            System.out.println("AFTER LOADING COUNTRIES");
+
+            if (countryList.isEmpty())
+            {
+                throw new IllegalStateException("There are no countries in the source data file: " +
+                                                COUNTRY_FILE_PATH.toString());
+            }
+
+            return countryList;
         }
         catch (final IOException e)
         {
             throw new RuntimeException(e);
-        }
-
-        return countryList;
-    }
-
-    /**
-     * Validate that the countries list contains entries.
-     * Throws an unchecked exception so callers don't run the game with invalid data.
-     */
-    private void checkCountryListEmpty(final Path countriesPath)
-    {
-        if (countryList.isEmpty())
-        {
-            throw new IllegalStateException("There are no countries in the source data file: " +
-                                            countriesPath.toString());
         }
     }
 
@@ -305,7 +299,7 @@ class Game
         final StringBuilder response;
         int correctLetters;
 
-        response = new StringBuilder();
+        response       = new StringBuilder();
         correctLetters = checkCorrectLetterPositions(randomCountry, randomCountryLength, guess);
 
         logger.addGuessLog(guess, "matches=" + correctLetters);
