@@ -1,3 +1,5 @@
+package ca.bcit.comp2522lab9;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,8 +18,8 @@ import java.nio.file.StandardOpenOption;
 public class HighScoreService
 {
     private static final String COUNTRY_MODE_PREFIX = "COUNTRY=";
-    private static final Path SCORE_FILE = Paths.get("src", "data", "highscore.txt");
-    private static final int DEFAULT_SCORE = 0;
+    private static final Path   SCORE_FILE          = Paths.get("src", "data", "highscore.txt");
+    private static final int    DEFAULT_SCORE       = 0;
 
     private int highScore;
 
@@ -81,7 +83,7 @@ public class HighScoreService
         }
 
         highScoreString = line.substring(COUNTRY_MODE_PREFIX.length()).trim();
-        highScoreValue = Integer.parseInt(highScoreString);
+        highScoreValue  = Integer.parseInt(highScoreString);
 
         return highScoreValue;
     }

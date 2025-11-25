@@ -1,3 +1,5 @@
+package ca.bcit.comp2522lab9;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles writing log files for the Country Game.
+ * Handles writing log files for the Country ca.bcit.comp2522lab9.Game.
  *
  * @author David Martinez
  * @author Daniel Do
@@ -25,7 +27,7 @@ public class LoggerService
     final List<String> guessLogLines;
 
     /**
-     * Constructor for LoggerService
+     * Constructor for ca.bcit.comp2522lab9.LoggerService
      */
     LoggerService()
     {

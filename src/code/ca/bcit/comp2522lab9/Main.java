@@ -1,3 +1,5 @@
+package ca.bcit.comp2522lab9;
+
 /**
  * Runner class
  *
@@ -9,6 +11,7 @@ public class Main
 {
     /**
      * Runner method to create and start a game
+     *
      * @param args unused
      */
     public static void main(final String[] args)

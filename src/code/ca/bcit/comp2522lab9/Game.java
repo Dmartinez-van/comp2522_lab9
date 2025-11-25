@@ -1,3 +1,6 @@
+package ca.bcit.comp2522lab9;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,8 +10,8 @@ import java.util.Random;
 import java.util.Scanner;
 
 /**
- * A Guessing Game class.
- * Game loops involves user guessing a randomly picked
+ * A Guessing ca.bcit.comp2522lab9.Game class.
+ * ca.bcit.comp2522lab9.Game loops involves user guessing a randomly picked
  * country name (randomly picked from a text file).
  * If user guesses wrong, game will inform user the
  * length of their guess, and the length of the answer.
@@ -24,7 +27,7 @@ class Game
 {
     public static final int    DEFAULT_SCORE     = 0;
     public static final String DEFAULT_GAME_MODE = "COUNTRY";
-    public static       Path   COUNTRY_FILE_PATH = Paths.get("src", "data", "countries.txt");
+    public static final Path   COUNTRY_FILE_PATH = Paths.get("src", "data", "countries.txt");
 
     private final List<String>     countryList;
     private final HighScoreService score;
@@ -35,7 +38,7 @@ class Game
     private boolean gameOn;
 
     /**
-     * Game class constructor.
+     * ca.bcit.comp2522lab9.Game class constructor.
      * Sets up object with path to country text file.
      */
     public Game()
@@ -70,9 +73,10 @@ class Game
 
             final List<String> countryList;
 
-            countryList = Files.readAllLines(COUNTRY_FILE_PATH);
-            countryList.forEach(System.out::println);
-            System.out.println("AFTER LOADING COUNTRIES");
+            try (final BufferedReader reader = Files.newBufferedReader(COUNTRY_FILE_PATH))
+            {
+                countryList = reader.lines().toList();
+            }
 
             if (countryList.isEmpty())
             {
@@ -87,6 +91,7 @@ class Game
             throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Gets a new random country.
@@ -171,11 +176,10 @@ class Game
     }
 
     /**
-     * Main game loop logic.
+     * ca.bcit.comp2522lab9.Main game loop logic.
      * Reads and stores the number of countries in data file.
      * Picks a random number which is used to select a random country.
      * Has scanner to read and use user input.
-     * Keeps track of a guess count
      */
     public void start()
     {
