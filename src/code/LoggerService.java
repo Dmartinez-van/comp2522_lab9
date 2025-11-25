@@ -1,3 +1,4 @@
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,7 +80,8 @@ public class LoggerService
     }
 
     /**
-     * Writes the accumulated guess logs to a file.
+     * Writes the accumulated guess log to a file.
+     * The file is named with the current date and time.
      */
     public void writeGuessLog()
     {
@@ -105,13 +107,18 @@ public class LoggerService
         logNameBuilder.append("_COUNTRY.txt");
         logFilePath = LOG_DIRECTORY.resolve(logNameBuilder.toString());
 
-        try
+        try (final BufferedWriter writer = Files.newBufferedWriter(logFilePath))
         {
-            Files.write(logFilePath, guessLogLines);
+            for (final String line : guessLogLines)
+            {
+                writer.write(line);
+                writer.newLine();
+            }
         }
         catch (final IOException e)
         {
             throw new RuntimeException(e);
         }
+
     }
 }

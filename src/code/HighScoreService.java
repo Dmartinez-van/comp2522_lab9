@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,26 +28,33 @@ public class HighScoreService
     {
         try
         {
+            // Ensure directory exists
             if (Files.notExists(SCORE_FILE.getParent()))
             {
                 Files.createDirectories(SCORE_FILE.getParent());
             }
 
+            // Ensure file exists
             if (Files.notExists(SCORE_FILE))
             {
                 Files.createFile(SCORE_FILE);
             }
 
             final String scoreLine;
-            scoreLine = Files.readString(SCORE_FILE).trim();
 
-            if (scoreLine.isEmpty())
+            // Use try-with-resources to safely read the file
+            try (final BufferedReader reader = Files.newBufferedReader(SCORE_FILE))
+            {
+                scoreLine = reader.readLine();
+            }
+
+            if (scoreLine == null || scoreLine.trim().isEmpty())
             {
                 highScore = DEFAULT_SCORE;
             }
             else
             {
-                highScore = parseHighScoreString(scoreLine);
+                highScore = parseHighScoreString(scoreLine.trim());
             }
         }
         catch (final IOException e)
@@ -54,6 +62,7 @@ public class HighScoreService
             throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Parses a line from the score file to extract the score.
