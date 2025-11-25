@@ -46,6 +46,18 @@ class Game
         this.score      = new HighScoreService();
         this.logger     = new LoggerService();
 
+        countryList = loadCountries();
+    }
+
+    /**
+     * Loads countries from the data file into a list.
+     *
+     * @return List of country names as Strings.
+     */
+    private List<String> loadCountries()
+    {
+        final List<String> countryList;
+
         try
         {
             if (Files.notExists(COUNTRY_FILE_PATH.getParent()))
@@ -59,13 +71,14 @@ class Game
             }
 
             countryList = Files.readAllLines(COUNTRY_FILE_PATH);
-
             checkCountryListEmpty(COUNTRY_FILE_PATH);
         }
         catch (final IOException e)
         {
             throw new RuntimeException(e);
         }
+
+        return countryList;
     }
 
     /**
@@ -184,81 +197,152 @@ class Game
         {
             while (gameOn)
             {
-                final String guess;
-                final StringBuilder response;
-                final int guessLength;
-
-                response = new StringBuilder();
-                System.out.print("Your Guess: ");
-                guess       = scanner.nextLine().trim().toLowerCase();
-                guessLength = guess.length();
-                System.out.println();
-
-                if (guess.isEmpty())
-                {
-                    System.out.println("Empty Guess. Try again.");
-                }
-                else if (guess.equals("quit"))
-                {
-                    System.out.println("Bye!");
-                    turnOffGame();
-                }
-                else
-                {
-                    guessCount++;
-
-                    if (guess.equalsIgnoreCase(randomCountry))
-                    {
-                        response.append("correct in ")
-                                .append(guessCount);
-
-                        logger.addGuessLog(guess, response.toString());
-                        logger.writeGuessLog();
-
-                        response.append(" attempts! Word was: ")
-                                .append(randomCountry);
-
-                        System.out.println(response);
-
-                        if (score.getHighScore() > guessCount ||
-                            score.getHighScore() == DEFAULT_SCORE)
-                        {
-                            System.out.println("NEW BEST for " + gameMode + " mode!");
-                            score.writeHighScore(guessCount);
-                        }
-                        turnOffGame();
-                    }
-                    else // Incorrect guess
-                    {
-                        // Correct guess length. Check and display any correct letter positions
-                        if (guessLength == randomCountryLength)
-                        {
-                            int correctLetters;
-
-                            correctLetters = checkCorrectLetterPositions(randomCountry, randomCountryLength, guess);
-
-                            logger.addGuessLog(guess, "matches=" + correctLetters);
-
-                            response.append("Not it. ")
-                                    .append(correctLetters)
-                                    .append(" letter(s) correct (right position).");
-
-                            System.out.println(response);
-                        }
-                        else // Incorrect guess length
-                        {
-                            logger.addGuessLog(guess, "wrong_length");
-                            response.append("Wrong length (")
-                                    .append(guessLength)
-                                    .append("). Need ")
-                                    .append(randomCountryLength)
-                                    .append(".");
-
-                            System.out.println(response);
-                        }
-                    }
-                }
+                handleGuessTurn(scanner, randomCountry, randomCountryLength);
             }
         }
+    }
+
+    /**
+     * Handles a single turn of guessing.
+     *
+     * @param scanner             the Scanner to read user input
+     * @param randomCountry       the country to guess
+     * @param randomCountryLength the length of the country to guess
+     */
+    private void handleGuessTurn(final Scanner scanner,
+                                 final String randomCountry,
+                                 final int randomCountryLength)
+    {
+        final String guess;
+
+        System.out.print("Your Guess: ");
+        guess = scanner.nextLine().trim().toLowerCase();
+        System.out.println();
+
+        if (guess.isEmpty())
+        {
+            System.out.println("Empty Guess. Try again.");
+        }
+        else if (guess.equals("quit"))
+        {
+            System.out.println("Bye!");
+            turnOffGame();
+        }
+        else
+        {
+            processNonEmptyGuess(randomCountry, randomCountryLength, guess);
+        }
+    }
+
+    /**
+     * Processes a non-empty guess.
+     *
+     * @param randomCountry       the country to guess
+     * @param randomCountryLength the length of the country to guess
+     * @param guess               the user's guess
+     */
+    private void processNonEmptyGuess(final String randomCountry,
+                                      final int randomCountryLength,
+                                      final String guess)
+    {
+        guessCount++;
+
+        if (guess.equalsIgnoreCase(randomCountry))
+        {
+            handleCorrectGuess(randomCountry, guess);
+        }
+        else
+        {
+            handleIncorrectGuess(randomCountry, randomCountryLength, guess);
+        }
+    }
+
+    private void handleIncorrectGuess(final String randomCountry,
+                                      final int randomCountryLength,
+                                      final String guess)
+    {
+        final int guessLength;
+
+        guessLength = guess.length();
+
+        if (guessLength == randomCountryLength)
+        {
+            handleIncorrectGuessCorrectLength(randomCountry, randomCountryLength, guess);
+        }
+        else
+        {
+            handleIncorrectGuessIncorrectLength(randomCountryLength, guess, guessLength);
+        }
+    }
+
+    /**
+     * Response builder for incorrect guess with incorrect length.
+     */
+    private void handleIncorrectGuessIncorrectLength(final int randomCountryLength,
+                                                     final String guess,
+                                                     final int guessLength)
+    {
+        final StringBuilder response;
+        response = new StringBuilder();
+
+        logger.addGuessLog(guess, "wrong_length");
+        response.append("Wrong length (")
+                .append(guessLength)
+                .append("). Need ")
+                .append(randomCountryLength)
+                .append(".");
+
+        System.out.println(response);
+    }
+
+    /**
+     * Response builder for incorrect guess with correct length.
+     */
+    private void handleIncorrectGuessCorrectLength(final String randomCountry,
+                                                   final int randomCountryLength,
+                                                   final String guess)
+    {
+        final StringBuilder response;
+        int correctLetters;
+
+        response = new StringBuilder();
+        correctLetters = checkCorrectLetterPositions(randomCountry, randomCountryLength, guess);
+
+        logger.addGuessLog(guess, "matches=" + correctLetters);
+
+        response.append("Not it. ")
+                .append(correctLetters)
+                .append(" letter(s) correct (right position).");
+
+        System.out.println(response);
+    }
+
+    /**
+     * Response builder for correct guess.
+     */
+    private void handleCorrectGuess(final String randomCountry,
+                                    final String guess)
+    {
+        final StringBuilder response;
+        response = new StringBuilder();
+
+        response.append("correct in ")
+                .append(guessCount);
+
+        logger.addGuessLog(guess, response.toString());
+        logger.writeGuessLog();
+
+        response.append(" attempts! Word was: ")
+                .append(randomCountry);
+
+        System.out.println(response);
+
+        if (score.getHighScore() > guessCount ||
+            score.getHighScore() == DEFAULT_SCORE)
+        {
+            System.out.println("NEW BEST for " + gameMode + " mode!");
+            score.writeHighScore(guessCount);
+        }
+        turnOffGame();
     }
 }
