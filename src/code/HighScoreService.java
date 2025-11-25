@@ -14,8 +14,8 @@ import java.nio.file.StandardOpenOption;
  */
 public class HighScoreService
 {
-    public static final String COUNTRY_MODE_PREFIX = "COUNTRY=";
-    public static final Path SCORE_FILE = Paths.get("src", "data", "highscore.txt");
+    private static final String COUNTRY_MODE_PREFIX = "COUNTRY=";
+    private static final Path SCORE_FILE = Paths.get("src", "data", "highscore.txt");
     private static final int DEFAULT_SCORE = 0;
 
     private int highScore;
@@ -37,14 +37,16 @@ public class HighScoreService
                 Files.createFile(SCORE_FILE);
             }
 
-            final String line = Files.readString(SCORE_FILE).trim();
-            if (line.isEmpty())
+            final String scoreLine;
+            scoreLine = Files.readString(SCORE_FILE).trim();
+
+            if (scoreLine.isEmpty())
             {
                 highScore = DEFAULT_SCORE;
             }
             else
             {
-                highScore = parseHighScoreString(line);
+                highScore = parseHighScoreString(scoreLine);
             }
         }
         catch (final IOException e)
@@ -53,9 +55,16 @@ public class HighScoreService
         }
     }
 
+    /**
+     * Parses a line from the score file to extract the score.
+     *
+     * @param line the line read from the score file
+     * @return the extracted score, or DEFAULT_SCORE if parsing fails
+     */
     private int parseHighScoreString(final String line)
     {
         final String highScoreString;
+        final int highScoreValue;
 
         if (!line.startsWith(COUNTRY_MODE_PREFIX))
         {
@@ -63,7 +72,9 @@ public class HighScoreService
         }
 
         highScoreString = line.substring(COUNTRY_MODE_PREFIX.length()).trim();
-        return Integer.parseInt(highScoreString);
+        highScoreValue = Integer.parseInt(highScoreString);
+
+        return highScoreValue;
     }
 
     /**

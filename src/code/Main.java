@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 /**
  * Runner class
  *
@@ -12,9 +10,8 @@ public class Main
     /**
      * Runner method to create and start a game
      * @param args unused
-     * @throws IOException if error occurs while writing score file
      */
-    public static void main(final String[] args) throws IOException
+    public static void main(final String[] args)
     {
         final Game game;
         game = new Game();

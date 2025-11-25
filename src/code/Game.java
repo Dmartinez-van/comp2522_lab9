@@ -22,14 +22,15 @@ import java.util.Scanner;
  */
 class Game
 {
-    public static final int  DEFAULT_SCORE     = 0;
-    public static       Path COUNTRY_FILE_PATH = Paths.get("src", "data", "countries.txt");
+    public static final int    DEFAULT_SCORE     = 0;
+    public static final String DEFAULT_GAME_MODE = "COUNTRY";
+    public static       Path   COUNTRY_FILE_PATH = Paths.get("src", "data", "countries.txt");
 
     private final List<String>     countryList;
     private final HighScoreService score;
     private final LoggerService    logger;
+    private final String           gameMode;
 
-    private String  gameMode;
     private int     guessCount;
     private boolean gameOn;
 
@@ -39,7 +40,7 @@ class Game
      */
     public Game()
     {
-        this.gameMode   = "COUNTRY";
+        this.gameMode   = DEFAULT_GAME_MODE;
         this.guessCount = DEFAULT_SCORE;
         this.gameOn     = true;
         this.score      = new HighScoreService();
@@ -90,7 +91,7 @@ class Game
         final Random random;
         final String randomCountry;
 
-        random = new Random();
+        random        = new Random();
         randomCountry = countryList.get(random.nextInt(countryList.size()));
 
         return randomCountry;
@@ -118,8 +119,10 @@ class Game
                            .append("Secret word length: ")
                            .append(secretWord.length())
                            .append("\nSecret word: ")
-                           .append(secretWord + " (For testing purposes)") // For testing purposes
+                           .append(secretWord)
+                           .append(" (For testing purposes)") // For testing purposes
                            .append("\nCurrent best: ");
+
         if (score.getHighScore() == DEFAULT_SCORE)
         {
             startMessageBuilder.append("\u2014");
@@ -129,12 +132,17 @@ class Game
             startMessageBuilder.append(score.getHighScore())
                                .append(" guesses");
         }
-        System.out.println(startMessageBuilder.toString());
+
+        System.out.println(startMessageBuilder);
     }
 
-    /*
-     * Helper function that checks how many letters match in the correct position.
-     * Only checks the characters up to the correct length.
+    /**
+     * Checks how many letters in the guess are in the correct position.
+     *
+     * @param randomCountry       the country to guess
+     * @param randomCountryLength the length of the country to guess
+     * @param guess               the user's guess
+     * @return number of letters in the correct position
      */
     private int checkCorrectLetterPositions(final String randomCountry,
                                             final int randomCountryLength,
@@ -167,6 +175,7 @@ class Game
         final String randomCountry;
         final int randomCountryLength;
         final Scanner scanner;
+
         scanner             = new Scanner(System.in); // defaults to UTF-8 charset
         randomCountry       = getRandomCountry();
         randomCountryLength = randomCountry.length();
@@ -189,7 +198,6 @@ class Game
             {
                 System.out.println("Empty Guess. Try again.");
             }
-
             else if (guess.equals("quit"))
             {
                 System.out.println("Bye!");
@@ -212,7 +220,8 @@ class Game
 
                     System.out.println(response);
 
-                    if (score.getHighScore() > guessCount || score.getHighScore() == DEFAULT_SCORE)
+                    if (score.getHighScore() > guessCount ||
+                        score.getHighScore() == DEFAULT_SCORE)
                     {
                         System.out.println("NEW BEST for " + gameMode + " mode!");
                         score.writeHighScore(guessCount);
@@ -233,6 +242,7 @@ class Game
                         response.append("Not it. ")
                                 .append(correctLetters)
                                 .append(" letter(s) correct (right position).");
+
                         System.out.println(response);
                     }
                     else // Incorrect guess length
@@ -243,6 +253,7 @@ class Game
                                 .append("). Need ")
                                 .append(randomCountryLength)
                                 .append(".");
+
                         System.out.println(response);
                     }
                 }

@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -18,12 +17,15 @@ import java.util.List;
  */
 public class LoggerService
 {
-    public static final Path               LOG_DIRECTORY         = Paths.get("src", "data", "logs");
+    private static final Path              LOG_DIRECTORY         = Paths.get("src", "data", "logs");
     private static final DateTimeFormatter TIME_FORMATTER_MILLI  = DateTimeFormatter.ofPattern("HH:mm:ss:SS");
     private static final DateTimeFormatter TIME_FORMATTER_SECOND = DateTimeFormatter.ofPattern("HH-mm-ss");
 
     final List<String> guessLogLines;
 
+    /**
+     * Constructor for LoggerService
+     */
     LoggerService()
     {
         guessLogLines = new ArrayList<>();
@@ -46,6 +48,12 @@ public class LoggerService
         }
     }
 
+    /**
+     * Adds a guess and its outcome to the log.
+     *
+     * @param guess   The guessed country.
+     * @param outcome The outcome of the guess.
+     */
     public void addGuessLog(final String guess,
                             final String outcome)
     {
@@ -70,6 +78,9 @@ public class LoggerService
         guessLogLines.add(logBuilder.toString());
     }
 
+    /**
+     * Writes the accumulated guess logs to a file.
+     */
     public void writeGuessLog()
     {
         if (guessLogLines.isEmpty())
